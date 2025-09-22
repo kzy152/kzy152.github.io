@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备智能检测工具</title>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        /* 卡片容器 */
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* 标题样式 */
+        .title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            position: relative;
+        }
+        .title::after {
+            content: '';
+            width: 80px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+        .title i { margin-right: 10px; font-weight: normal; }
+        /* 按钮样式 */
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .detect-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .detect-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .btn-ua { border-left: 4px solid #4285f4; }
+        .btn-manual { border-left: 4px solid #ea4335; }
+        .btn-feature { border-left: 4px solid #fbbc05; }
+        /* 结果区域 */
+        .result-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .result-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .result-list {
+            list-style: none;
+            gap: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+        .result-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .result-item i {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
+        }
+        .item-label {
+            font-weight: 500;
+            min-width: 120px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .item-value { color: rgba(255, 255, 255, 0.75); }
+        /* 手动选择下拉框 */
+        .select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .select-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .select-item label {
+            font-size: 16px;
+            min-width: 120px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .select-item select {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .select-item select option {
+            background: #667eea;
+            color: #fff;
+        }
+        .select-item select:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .result-card, .select-group {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title"><<i class="fa fa-microchip"></</i>设备智能检测工具</h1>
+
+        <!-- 检测方式按钮组 -->
+        <div class="btn-group">
+            <button class="detect-btn btn-ua" onclick="detectByUA()">
+                <<i class="fa fa-robot"></</i> 自动检测（基于UA）
+            </button>
+            <button class="detect-btn btn-manual" onclick="showManualSelect()">
+                <<i class="fa fa-user-circle"></</i> 手动选择设备
+            </button>
+            <button class="detect-btn btn-feature" onclick="detectByFeature()">
+                <<i class="fa fa-cogs"></</i> 系统特性检测
+            </button>
+        </div>
+
+        <!-- 结果显示区域 -->
+        <div id="result" class="result-card"></div>
+    </div>
+
+    <script>
+        // 1. 基于UA自动检测
+        function detectByUA() {
+            const ua = navigator.userAgent;
+            let deviceType = "未知设备", browser = "未知浏览器", os = "未知系统";
+
+            // 检测系统
+            if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
+            else if (/Android/i.test(ua)) os = "Android";
+            else if (/Windows NT/i.test(ua)) os = "Windows";
+            else if (/Mac OS X/i.test(ua)) os = "macOS";
+            else if (/Linux/i.test(ua)) os = "Linux";
+
+            // 检测设备类型
+            if (/Mobile|Android|iPhone|iPad|iPod/i.test(ua)) {
+                deviceType = /iPad/i.test(ua) ? "平板设备" : "移动手机";
+            } else if (/Windows|Macintosh|Linux/i.test(ua)) {
+                deviceType = "桌面电脑";
+            }
+
+            // 检测浏览器
+            if (/Chrome/i.test(ua) && !/Edge/i.test(ua)) browser = "Chrome";
+            else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
+            else if (/Firefox/i.test(ua)) browser = "Firefox";
+            else if (/Edge/i.test(ua)) browser = "Edge";
+            else if (/Opera|OPR/i.test(ua)) browser = "Opera";
+
+            renderResult({
+                title: "自动检测结果（基于UA信息）",
+                icon: "fa-robot",
+                data: [
+                    { label: "设备类型", value: deviceType },
+                    { label: "操作系统", value: os },
+                    { label: "浏览器", value: browser },
+                    { label: "完整UA", value: `<span style="font-size:13px">${ua}</span>` }
+                ]
+            });
+        }
+
+        // 2. 手动选择检测
+        function showManualSelect() {
+            document.getElementById("result").innerHTML = `
+                <div class="result-title"><<i class="fa fa-user-circle"></</i> 手动选择设备信息</div>
+                <div class="select-group">
+                    <div class="select-item">
+                        <label>设备类型</label>
+                        <select id="deviceType">
+                            <option value="phone">移动手机</option>
+                            <option value="tablet">平板设备</option>
+                            <option value="pc">桌面电脑</option>
+                            <option value="other">其他设备</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label>操作系统</label>
+                        <select id="osType">
+                            <option value="ios">iOS</option>
+                            <option value="android">Android</option>
+                            <option value="windows">Windows</option>
+                            <option value="macos">macOS</option>
+                            <option value="linux">Linux</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label>常用浏览器</label>
+                        <select id="browserType">
+                            <option value="chrome">Chrome</option>
+                            <option value="safari">Safari</option>
+                            <option value="firefox">Firefox</option>
+                            <option value="edge">Edge</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="detect-btn" style="border-left:4px solid #34a853" onclick="getManualResult()">
+                    <<i class="fa fa-check"></</i> 确认选择
+                </button>
+            `;
+        }
+
+        // 获取手动选择结果
+        function getManualResult() {
+            const device = document.getElementById("deviceType").options[document.getElementById("deviceType").selectedIndex].text;
+            const os = document.getElementById("osType").options[document.getElementById("osType").selectedIndex].text;
+            const browser = document.getElementById("browserType").options[document.getElementById("browserType").selectedIndex].text;
+
+            renderResult({
+                title: "手动选择结果",
+                icon: "fa-user-circle",
+                data: [
+                    { label: "设备类型", value: device },
+                    { label: "操作系统", value: os },
+                    { label: "浏览器", value: browser }
+                ]
+            });
+        }
+
+        // 3. 系统特性检测（不依赖UA）
+        function detectByFeature() {
+            let os = "未知系统", deviceType = "未知设备", isTouch = "否", isWebkit = "否";
+
+            // 检测系统（通过API特性）
+            if (navigator.platform.includes("Mac")) os = "macOS/iOS";
+            else if (navigator.platform.includes("Win")) os = "Windows";
+            else if (navigator.platform.includes("Linux")) os = "Linux";
+            else if (navigator.userAgent.includes("Android")) os = "Android"; // 兜底
+
+            // 检测设备类型（触摸+屏幕尺寸）
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent) || (window.innerWidth < 768 && 'ontouchstart' in window);
+            deviceType = isMobile ? "移动设备（手机/平板）" : "桌面电脑";
+
+            // 检测触摸支持
+            isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 ? "是" : "否";
+
+            // 检测Webkit内核
+            isWebkit = 'WebkitAppearance' in document.documentElement.style ? "是" : "否";
+
+            renderResult({
+                title: "系统特性检测结果",
+                icon: "fa-cogs",
+                data: [
+                    { label: "推测系统", value: os },
+                    { label: "设备类型", value: deviceType },
+                    { label: "支持触摸", value: isTouch },
+                    { label: "Webkit内核", value: isWebkit },
+                    { label: "屏幕尺寸", value: `${window.innerWidth}px × ${window.innerHeight}px` },
+                    { label: "设备像素比", value: window.devicePixelRatio }
+                ]
+            });
+        }
+
+        // 统一渲染结果
+        function renderResult({ title, icon, data }) {
+            let html = `<div class="result-title"><<i class="fa ${icon}"></</i> ${title}</div><ul class="result-list">`;
+            data.forEach(item => {
+                html += `<li class="result-item">
+                    <<i class="fa fa-angle-right"></</i>
+                    <span class="item-label">${item.label}：</span>
+                    <span class="item-value">${item.value}</span>
+                </li>`;
+            });
+            html += `</ul>`;
+            document.getElementById("result").innerHTML = html;
+        }
+    </script>
+</body>
+</html>
