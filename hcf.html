@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#007AFF" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- Client Hints 配置 -->
+    <meta http-equiv="Accept-CH"
+        content="Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Arch, Sec-CH-UA-Model, Sec-CH-UA-Full-Version, Sec-CH-UA-Full-Version-List" />
+    <meta http-equiv="Permissions-Policy"
+        content="ch-ua=*, ch-ua-arch=*, ch-ua-full-version=*, ch-ua-full-version-list=*, ch-ua-mobile=*, ch-ua-model=*, ch-ua-platform=*, ch-ua-platform-version=*" />
+    <meta http-equiv="Critical-CH" content="Sec-CH-UA-Platform, Sec-CH-UA-Mobile" />
+    <title>设备检测</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="app-container" role="main">
+        <header class="navigation-bar" role="banner">
+            <div class="nav-content">
+                <h1 class="nav-title">设备检测</h1>
+                <p class="nav-subtitle">智能系统识别</p>
+            </div>
+        </header>
+
+        <div class="content-grid">
+            <section class="info-card primary-card" aria-labelledby="summary-heading">
+                <header class="card-header">
+                    <h2 id="summary-heading" class="card-title">检测结果</h2>
+                </header>
+                <div class="card-body">
+                    <div id="summary" class="status-indicator" role="status" aria-live="polite">
+                        <span class="status-text">正在分析系统特征...</span>
+                    </div>
+                    <dl class="info-list">
+                        <div class="info-row">
+                            <dt>置信度</dt>
+                            <dd class="progress-container">
+                                <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                                    aria-valuenow="0">
+                                    <div id="confBar" class="progress-fill"></div>
+                                </div>
+                                <span id="confPct" class="progress-percentage">0%</span>
+                            </dd>
+                        </div>
+                        <div class="info-row">
+                            <dt>系统评分</dt>
+                            <dd id="scoreBoard" class="score-display"></dd>
+                        </div>
+                    </dl>
+                    <div id="advancedDetectionContainer" class="advanced-detection-container" style="display: none;">
+                        <button id="advancedDetectionBtn" class="advanced-detection-btn">
+                            🔐 高级检测
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="info-card secondary-card" aria-labelledby="evidence-heading">
+                <header class="card-header">
+                    <h2 id="evidence-heading" class="card-title">检测过程</h2>
+                </header>
+                <div class="card-body">
+                    <ul id="steps" class="step-list" role="list"></ul>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 弹幕雨容器 -->
+    <div id="danmu-container" aria-hidden="true"></div>
+
+    <!-- WebGL容器（隐藏） -->
+    <div id="webgl-container"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:#131115;">
+        <div id="main">
+            <canvas id="c1" width="1024" height="1024">
+                <span>不支持canvas浏览器</span>
+            </canvas>
+        </div>
+        <button id="btn">CONFIG</button>
+        <div id="config">
+            <textarea name="" id="kernel" cols="30" rows="10"></textarea>
+            <br />
+            <button id="apply">APPLY</button>
+            <button id="cancle">CANCLE</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</html>
